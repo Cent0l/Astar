@@ -78,10 +78,30 @@ def wyswietl_mape(mapa, koszt=None):
     if koszt is not None:
         print(Fore.CYAN + f"Koszt całkowity: {koszt}")
 
+# Pobranie współrzędnych od użytkownika
+def pobierz_koordynaty(prompt, domyslne, mapa):
+    while True:
+        try:
+            wpis = input(f"{prompt} (domyślnie {domyslne}): ")
+            if not wpis.strip():
+                return domyslne
+            x, y = map(int, wpis.split())
+            if 0 <= x < len(mapa) and 0 <= y < len(mapa[0]):
+                return (x, y)
+            else:
+                print(Fore.RED + "Współrzędne poza zakresem mapy. Spróbuj ponownie.")
+        except ValueError:
+            print(Fore.RED + "Nieprawidłowy format. Wprowadź dwie liczby oddzielone spacją.")
+
 # Główna część programu
 mapa = wczytaj_mape('grid.txt')
-START = (len(mapa) - 1, 0)
-CEL = (0, len(mapa[0]) - 1)
+domyslny_start = (len(mapa) - 1, 0)  # Lewy dolny róg
+domyslny_cel = (0, len(mapa[0]) - 1)  # Prawy górny róg
+
+print(Fore.CYAN + "Podaj współrzędne startu:")
+START = pobierz_koordynaty("Start: ", domyslny_start, mapa)
+print(Fore.CYAN + "Podaj współrzędne celu:")
+CEL = pobierz_koordynaty("Cel: ", domyslny_cel, mapa)
 
 sciezka, koszt = a_star(mapa, START, CEL)
 
@@ -89,9 +109,5 @@ if sciezka:
     wyswietl_mape(mapa)  # Wyświetlamy mapę ze ścieżką
     print(Fore.YELLOW + "Ścieżka: ", sciezka)
     print(Fore.YELLOW + f"Koszt przejścia w jedną stronę: {koszt}")
-
-    # Koszt w obie strony (dodanie kosztu startowego i końcowego)
-    calkowity_koszt = koszt + (len(mapa) - 1) + (len(mapa[0]) - 1)
-    print(Fore.YELLOW + f"Koszt w obie strony: {calkowity_koszt}")
 else:
     print(Fore.RED + "Brak ścieżki!")
